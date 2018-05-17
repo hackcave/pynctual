@@ -64,11 +64,10 @@ lib =  ffi.dlopen("./libScanAPI.so")
 
 def PrintErrorMessage( nErrCode ):
     print('Failed to obtain image. ')
-
-    stError = ''
+    stError
     if nErrCode == 0:
         stError = "OK"
-    elif nErrCode == 4306:
+    elif nErrCode == FTR_ERROR_EMPTY_FRAME:
         stError = "- Empty frame -"
 
     elif nErrCode == FTR_ERROR_MOVABLE_FINGER:
@@ -91,40 +90,40 @@ def PrintErrorMessage( nErrCode ):
 
 
 #driver function
-def scan():
-    ImageSize =  ffi.new("FTRSCAN_IMAGE_SIZE *")
-    hDevice = lib.ftrScanOpenDevice()
-    if hDevice ==  ffi.NULL:
-        print('Failed to open device!\n')
-    err = lib.ftrScanGetImageSize( hDevice, ImageSize)
-    if (err==0)  :
-        print('Failed to get image size\n')
-        print(lib.ftrScanGetLastError())
-        lib.ftrScanCloseDevice( hDevice )
-    else:
-        print('Image size is ', ImageSize.nImageSize)
-        pBuffer = lib.malloc(ImageSize.nImageSize)
-        print('Please put your finger on the scanner:\n')
-        while (1):
-            if lib.ftrScanIsFingerPresent( hDevice, ffi.NULL ):
-                break
+
+ImageSize =  ffi.new("FTRSCAN_IMAGE_SIZE *")
+hDevice = lib.ftrScanOpenDevice()
+if hDevice ==  ffi.NULL:
+    print('Failed to open device!\n')
+err = lib.ftrScanGetImageSize( hDevice, ImageSize)
+if (err==0)  :
+    print('Failed to get image size\n')
+    print(lib.ftrScanGetLastError())
+    lib.ftrScanCloseDevice( hDevice )
+else:
+    print('Image size is ', ImageSize.nImageSize)
+    pBuffer = lib.malloc(ImageSize.nImageSize)
+    print('Please put your finger on the scanner:\n')
+    while (1):
+        if lib.ftrScanIsFingerPresent( hDevice, ffi.NULL ):
+            break
+        for i in range(0,100):
+            pass #sleep
+    print('Capturing fingerprint ......\n')
+    while (1):
+        if (lib.ftrScanGetFrame(hDevice, pBuffer, ffi.NULL)):
+            print('Done!\nWriting to file......\n')
+            #TODO: write_bmp_file( pBuffer, ImageSize.nWidth, ImageSize.nHeight)
+            #print(ImageSize.nWidth)
+            #print(ImageSize.nHeight)
+            #pimg = ffi.new('unsigned char[]')
+            pimg = ffi.cast('unsigned char [320][480]', pBuffer)
+            result = Image.frombuffer('L', (ImageSize.nWidth, ImageSize.nHeight), ffi.buffer(pBuffer, ImageSize.nImageSize), 'raw')
+            result.save('out.bmp')
+            break
+        else:
+            PrintErrorMessage( lib.ftrScanGetLastError() )
             for i in range(0,100):
                 pass #sleep
-        print('Capturing fingerprint ......\n')
-        while (1):
-            if (lib.ftrScanGetFrame(hDevice, pBuffer, ffi.NULL)):
-                print('Done!\nWriting to file......\n')
-                #TODO: write_bmp_file( pBuffer, ImageSize.nWidth, ImageSize.nHeight)
-                #print(ImageSize.nWidth)
-                #print(ImageSize.nHeight)
-                #pimg = ffi.new('unsigned char[]')
-                pimg = ffi.cast('unsigned char [320][480]', pBuffer)
-                result = Image.frombuffer('L', (ImageSize.nWidth, ImageSize.nHeight), ffi.buffer(pBuffer, ImageSize.nImageSize), 'raw', 'L', 0, 1)
-                result.save('out.bmp')
-                break
-            else:
-                PrintErrorMessage( lib.ftrScanGetLastError() )
-                for i in range(0,100):
-                    pass #sleep
 
-        lib.ftrScanCloseDevice( hDevice )
+    lib.ftrScanCloseDevice( hDevice )

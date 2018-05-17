@@ -22,8 +22,12 @@ def holmes():
 		if int(bozo)>=40:
 			flag=1
 			name = file[10:16]
-			print name+" was here at "+ datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+			announcment = name+" was here at "+ datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n"
+			out = open("table.txt", "ab")
+			out.write(announcment)
+			print announcment
+			out.close()
 		#	sn.send_notification(name +" was here at   "+ datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 			break
 	if (flag==0):
-		print "Who the fuck are you..."
+		print "Who the hell are you..."

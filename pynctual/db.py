@@ -8,7 +8,7 @@ def createdb():
         db = sqlite3.connect('db')
 
         cursor = db.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS person (id INTEGER PRIMARY KEY AUTOINCREMENT, rollno INTEGER NOT NULL, filename1 TEXT,filename2 TEXT,filename3 TEXT,filename4 TEXT,filename5 TEXT)''')
+        cursor.execute('''CREATE TABLE IF NOT EXISTS person (id INTEGER PRIMARY KEY AUTOINCREMENT, rollno INTEGER NOT NULL, filename1 TEXT)''')
 
     except Exception as e:
         db.rollback()
@@ -35,13 +35,9 @@ def updatedb(roll_no):
                 pass
 
         # Ensure xyt file of intern with "rollno: 000" is named as 000.xyt
-        filename1 = str(roll_no) + '(1)' + '.xyt'
-        filename2 = str(roll_no) + '(2)' + '.xyt'
-        filename3 = str(roll_no) + '(3)' + '.xyt'
-        filename4 = str(roll_no) + '(4)' + '.xyt'
-        filename5 = str(roll_no) + '(5)' + '.xyt'
+        filename1 = str(roll_no) + '.xyt'
         if(_cursor):
-            _cursor.execute('''INSERT INTO person (rollno, filename1, filename2, filename3, filename4, filename5) VALUES(?,?,?,?,?,?)''', (roll_no, filename1, filename2, filename3, filename4, filename5))
+            _cursor.execute('''INSERT INTO person (rollno, filename1) VALUES(?,?)''', (roll_no, filename1))
         else:
             raise Exception("_cursor is NULL")
 
@@ -59,7 +55,7 @@ def displaydb():
     try:
         db = sqlite3.connect("db")
         _cursor = db.cursor()
-        _rows = _cursor.execute("SELECT id, rollno, filename1, filename2, filename3, filename4, filename5 from person")
+        _rows = _cursor.execute("SELECT id, rollno, filename1 from person")
 
         for row in _rows:
             print('ID: {} ROLL-NO: {} FILENAME: {}'.format(row[0], row[1], row[2])) 
