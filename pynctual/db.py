@@ -27,17 +27,18 @@ def updatedb(roll_no):
         db = sqlite3.connect("db")
         _cursor = db.cursor()
 
-        # Ensure that entry should not exist already
-        for row in _cursor.execute("SELECT rollno FROM person"):
-            if row[0] == roll_no:
-                print("Entry already exists")
-                return
-            else:
-                pass
-
         # Ensure xyt file of intern with "rollno: 000" is named as 000.xyt
         filename1 = str(roll_no) + '.xyt'
+		
         if(_cursor):
+			# Ensure that entry should not exist already
+			for row in _cursor.execute("SELECT rollno FROM person"):
+	            if row[0] == roll_no:
+	                print("Entry already exists")
+	                return
+	            else:
+	                pass
+
             _cursor.execute('''INSERT INTO person (rollno, filename1) VALUES(?,?)''', (roll_no, filename1))
         else:
             raise Exception("_cursor is NULL")
