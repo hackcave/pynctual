@@ -9,11 +9,12 @@ def createdb():
 
         cursor = db.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS person (id INTEGER PRIMARY KEY AUTOINCREMENT, rollno INTEGER NOT NULL, filename1 TEXT)''')
+        cursor.execute('''CREATE TABLE IF NOT EXISTS attendance (id INTEGER PRIMARY KEY AUTOINCREMENT, rollno INTEGER NOT NULL, date TEXT, time TEXT, status TEXT)''')
 
     except Exception as e:
         db.rollback()
-        raise e 
-    
+        raise e
+
     finally:
         db.close()
 
@@ -29,7 +30,7 @@ def updatedb(roll_no):
         # Ensure that entry should not exist already
         for row in _cursor.execute("SELECT rollno FROM person"):
             if row[0] == roll_no:
-                print("Entry already exist")
+                print("Entry already exists")
                 return
             else:
                 pass
@@ -58,12 +59,38 @@ def displaydb():
         _rows = _cursor.execute("SELECT id, rollno, filename1 from person")
 
         for row in _rows:
-            print('ID: {} ROLL-NO: {} FILENAME: {}'.format(row[0], row[1], row[2])) 
+            print('ID: {} ROLL-NO: {} FILENAME: {}'.format(row[0], row[1], row[2]))
 
     except Exception as e:
         db.rollback()
         raise e
-    
+
     finally:
         db.close()
 
+def add_attendance(roll_no, date, time):
+	roll_no = int(roll_no)
+
+	try:
+		db = sqlite3.connect("db")
+		_cursor = db.cursor()
+
+        if(_cursor):
+			rows = _cursor.execute("SELECT status FROM attendance WHERE rollno = roll_no ORDER BY id DESC")
+			if rows[0][0] == "entry":
+				status = "exit"
+			else:
+				status = "entry"
+
+            _cursor.execute('''INSERT INTO attendance (rollno, date, time, status) VALUES(?,?,?,?)''', (roll_no, date, time, status))
+        else:
+            raise Exception("_cursor is NULL")
+
+		db.commit()
+
+    except Exception as e:
+        db.rollback()
+        raise e
+
+    finally:
+        db.close()

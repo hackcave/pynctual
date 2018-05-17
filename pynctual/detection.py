@@ -11,6 +11,7 @@ import db
 import sendNotification as sn
 from datetime import datetime
 warnings.filterwarnings("ignore")
+
 def holmes():
 	fp.scan()
 	gray.grayscale()
@@ -22,7 +23,11 @@ def holmes():
 		if int(bozo)>=40:
 			flag=1
 			name = file[10:16]
-			announcment = name+" was here at "+ datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n"
+			date = datetime.now().strftime('%d-%m-%Y')
+			time = datetime.now().strftime('%H:%M:%S')
+			announcement = name+" was here at "+ datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n"
+			# Add the attendance into the database
+			db.add_attendance(name, date, time)
 			out = open("table.txt", "ab")
 			out.write(announcment)
 			print announcment
