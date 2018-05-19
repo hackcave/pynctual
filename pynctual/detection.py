@@ -27,10 +27,10 @@ def holmes():
 			time = datetime.now().strftime('%H:%M:%S')
 			announcement = name+" was here at "+ datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n"
 			# Add the attendance into the database
-			db.add_attendance(name, date, time)
+			status = db.add_attendance(name, date, time)
 			out = open("table.txt", "ab")
-			out.write(announcment)
-			print announcment
+			out.write("{0}: {1}".format(status,announcement))
+			print announcement
 			out.close()
 		#	sn.send_notification(name +" was here at   "+ datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 			break

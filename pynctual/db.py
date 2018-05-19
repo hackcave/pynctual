@@ -31,15 +31,15 @@ def updatedb(roll_no):
         filename1 = str(roll_no) + '.xyt'
 		
         if(_cursor):
-			# Ensure that entry should not exist already
-			for row in _cursor.execute("SELECT rollno FROM person"):
-	            if row[0] == roll_no:
-	                print("Entry already exists")
-	                return
-	            else:
-	                pass
+					# Ensure that entry should not exist already
+					for row in _cursor.execute("SELECT rollno FROM person"):
+						if row[0] == roll_no:
+							print("Entry already exists")
+							return
+						else:
+							pass
 
-            _cursor.execute('''INSERT INTO person (rollno, filename1) VALUES(?,?)''', (roll_no, filename1))
+					_cursor.execute('''INSERT INTO person (rollno, filename1) VALUES(?,?)''', (roll_no, filename1))
         else:
             raise Exception("_cursor is NULL")
 
@@ -69,29 +69,34 @@ def displaydb():
     finally:
         db.close()
 
-def add_attendance(roll_no, date, time):
+def add_attendance(roll_no, _date, _time):
 	roll_no = int(roll_no)
+	print('{} is roll'.format(roll_no))
+	_date = "{}".format(_date)
+	_time = "{}".format(_time)
 
 	try:
 		db = sqlite3.connect("db")
 		_cursor = db.cursor()
 
-        if(_cursor):
-			rows = _cursor.execute("SELECT status FROM attendance WHERE rollno = roll_no ORDER BY id DESC")
-			if rows[0][0] == "entry":
-				status = "exit"
-			else:
-				status = "entry"
-
-            _cursor.execute('''INSERT INTO attendance (rollno, date, time, status) VALUES(?,?,?,?)''', (roll_no, date, time, status))
-        else:
-            raise Exception("_cursor is NULL")
+		if(_cursor):
+			rows = _cursor.execute("SELECT status FROM attendance WHERE rollno = ? ORDER BY id DESC", (roll_no,))
+			row = rows.fetchone()
+			status = "entry"
+			if row:
+				if row[0] == "entry":
+					status = "exit"
+			_cursor.execute('''INSERT INTO attendance (rollno, date, time, status) VALUES(?,?,?,?)''', (roll_no, _date, _time, status,))
+			"""_cursor.execute('''INSERT INTO attendance (rollno) VALUES(1)''')"""
+		else:
+		    raise Exception("_cursor is NULL")
 
 		db.commit()
 
-    except Exception as e:
-        db.rollback()
-        raise e
+	except Exception as e:
+		db.rollback()
+		raise e
 
-    finally:
-        db.close()
+	finally:
+		db.close()
+	return status
